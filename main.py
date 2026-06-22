@@ -1,22 +1,36 @@
-from config import SUPABASE_URL, SUPABASE_KEY, ZAPI_INSTANCE, ZAPI_TOKEN
+from config import SUPABASE_URL, SUPABASE_KEY
 from supabase_client import SupabaseClient
+from zapi_client import ZAPIClient
 
 def main():
-    print("Buscando contatos no Supabase")
+    print("Enviando mensagens via Z-API")
     
-    # Criar cliente Supabase
+    # Buscar contatos
     supabase = SupabaseClient()
-    
-    # Buscar contatos 
     contacts = supabase.get_contacts(limit=3)
     
-    # Mostrar resultados
-    if contacts:
-        print(f"\n Encontrados {len(contacts)} contatos:")
-        for contact in contacts:
-            print(f"  - {contact.get('nome_contato')} ({contact.get('telefone')})")
-    else:
+    if not contacts:
         print("Nenhum contato encontrado")
+        return
+    
+    # Preparar cliente Z-API
+    zapi = ZAPIClient()
+    
+    # Enviar mensagens
+    print(f"\nEnviando para {len(contacts)} contatos...")
+    
+    for contact in contacts:
+        name = contact.get('nome_contato')
+        phone = contact.get('telefone')
+        
+        message = f"Olá, {name} tudo bem com você?"
+        
+        print(f"\nEnviando para {name} ({phone})")
+        print(f"   Mensagem: {message}")
+        
+        zapi.send_message(phone, message)
+    
+    print("\nProcessamento concluído!")
 
 if __name__ == "__main__":
     main()
