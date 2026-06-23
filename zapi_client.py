@@ -25,12 +25,13 @@ class ZAPIClient:
             response = requests.post(url, json=payload, headers=headers, timeout=30)
             
             if response.status_code == 200:
-                print(f"Mensagem enviada para {phone}")
-                return True
+                return {"success": True, "status": response.status_code}
             else:
-                print(f"Erro {response.status_code}: {response.text}")
-                return False
+                return {"success": False, "status": response.status_code, "error": response.text}
                 
+        except requests.exceptions.Timeout:
+            return {"success": False, "error": "Timeout - A requisição demorou muito"}
+        except requests.exceptions.ConnectionError:
+            return {"success": False, "error": "Erro de conexão - Verifique sua internet"}
         except Exception as e:
-            print(f"Erro ao enviar mensagem: {e}")
-            return False
+            return {"success": False, "error": str(e)}
